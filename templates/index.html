@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>LinkedIn Mention Extraction</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+  --bg:#0b0f19;
+  --surface:#12182a;
+  --border:#1f2844;
+  --accent:#3b82f6;
+  --text:#e6ebf5;
+  --muted:#8a97b8;
+  --radius:10px;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:"Syne",sans-serif;
+}
+
+.page{
+  max-width:900px;
+  margin:auto;
+  padding:40px 20px;
+}
+
+h1{
+  font-size:22px;
+  margin-bottom:4px;
+}
+
+.subtitle{
+  font-family:"DM Mono",monospace;
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:28px;
+}
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:24px;
+  margin-bottom:20px;
+}
+
+.section-title{
+  font-family:"DM Mono",monospace;
+  font-size:11px;
+  letter-spacing:1px;
+  color:var(--muted);
+  margin-bottom:14px;
+}
+
+.name-row{
+  display:flex;
+  gap:8px;
+  margin-bottom:8px;
+}
+
+.name-row input{
+  flex:1;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:#0f1423;
+  color:var(--text);
+}
+
+button{
+  cursor:pointer;
+  border:none;
+  border-radius:8px;
+}
+
+.add-btn{
+  margin-top:6px;
+  padding:8px 12px;
+  background:#0f1423;
+  color:var(--muted);
+  border:1px dashed var(--border);
+}
+
+.run-btn{
+  margin-top:20px;
+  padding:12px 20px;
+  background:var(--accent);
+  color:white;
+  font-weight:600;
+}
+
+select{
+  width:100%;
+  padding:8px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:#0f1423;
+  color:var(--text);
+}
+
+.options{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:16px;
+}
+
+.table-wrap{
+  overflow:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+th{
+  text-align:left;
+  font-family:"DM Mono",monospace;
+  font-size:11px;
+  color:var(--muted);
+  border-bottom:1px solid var(--border);
+  padding:10px;
+}
+
+td{
+  padding:10px;
+  border-bottom:1px solid rgba(31,40,68,0.6);
+}
+
+.view-link{
+  color:var(--accent);
+  text-decoration:none;
+  font-size:12px;
+}
+
+.result-count{
+  font-family:"DM Mono",monospace;
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:12px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+<h1>Mention Extraction</h1>
+<div class="subtitle">linkedin post intelligence</div>
+
+<div class="card">
+
+<div class="section-title">TARGET NAMES</div>
+
+<form method="post" onsubmit="showLoading()">
+
+<div id="names-container">
+
+{% if names %}
+{% for n in names %}
+<div class="name-row">
+<input type="text" name="names[]" value="{{n}}">
+<button type="button" onclick="removeRow(this)">✕</button>
+</div>
+{% endfor %}
+{% else %}
+<div class="name-row">
+<input type="text" name="names[]" placeholder="Full name">
+<button type="button" onclick="removeRow(this)">✕</button>
+</div>
+{% endif %}
+
+</div>
+
+<button type="button" class="add-btn" id="add-name-btn">Add name</button>
+
+<div class="options">
+
+<div>
+<div class="section-title">TIME RANGE</div>
+<select name="time_range">
+<option value="1">Last 1 month</option>
+<option value="3">Last 3 months</option>
+<option value="6">Last 6 months</option>
+<option value="12">Last 12 months</option>
+</select>
+</div>
+
+<div>
+<div class="section-title">OPTIONS</div>
+<label>
+<input type="checkbox" name="combined_search">
+Search names together
+</label>
+</div>
+
+</div>
+
+<button class="run-btn">Run Search</button>
+
+</form>
+
+</div>
+
+
+{% if results %}
+
+<div class="card">
+
+<div class="result-count">
+<strong>{{results|length}}</strong> posts found
+</div>
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+<tr>
+<th>Content</th>
+<th>Date</th>
+<th>Type</th>
+<th>Link</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for row in results %}
+<tr>
+<td>{{row["content_head"]}}</td>
+<td>{{row["post_date"]}}</td>
+<td>{{row["mention_type"]}}</td>
+<td>
+<a href="{{row['post_url']}}" target="_blank" class="view-link">View</a>
+</td>
+</tr>
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+{% endif %}
+
+</div>
+
+<script>
+
+const container=document.getElementById("names-container");
+const addBtn=document.getElementById("add-name-btn");
+
+addBtn.onclick=()=>{
+const row=document.createElement("div");
+row.className="name-row";
+row.innerHTML=`<input type="text" name="names[]" placeholder="Full name">
+<button type="button" onclick="removeRow(this)">✕</button>`;
+container.appendChild(row);
+};
+
+function removeRow(btn){
+if(container.children.length>1){
+btn.parentElement.remove();
+}
+}
+
+function showLoading(){
+console.log("searching...");
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,154 @@
+PROJECT PROMPT – LINKEDIN POST EXTRACTION SYSTEM
+
+Objective:
+Build a working system that extracts all LinkedIn posts mentioning a specific person and “Adya AI” within the last six months. The system must automatically retrieve posts, filter them, store them in structured format, and generate a report.
+
+System Overview:
+The system will include the following components:
+1. Data Extraction Layer
+2. Filtering & Processing Layer
+3. Storage Layer
+4. Reporting Layer
+
+1. Data Extraction Layer
+
+The system should retrieve LinkedIn posts using one of the following methods:
+- LinkedIn scraping using Playwright / Selenium / Puppeteer
+- Third-party APIs such as SerpAPI, Proxycurl, Apify
+- Google search queries targeting LinkedIn
+
+Example search queries:
+
+site:linkedin.com "Adya AI"
+site:linkedin.com/posts "Adya AI"
+site:linkedin.com "Adya AI" AND "<person name>"
+
+The crawler must load dynamic LinkedIn content and extract posts that mention:
+- The founder's name
+- The term "Adya AI"
+- Or both together
+
+2. Data Filtering Layer
+
+After extraction, posts must be filtered by:
+
+Time Range
+Only posts from the last six months must be included.
+
+Content Relevance
+Posts must contain at least:
+- the founder's name
+- "Adya AI"
+- related mentions or tags
+
+Duplicate Removal
+Remove duplicate posts using:
+- post URL
+- post ID
+- or content similarity.
+
+3. Data Extraction Fields
+
+For every post, extract:
+
+- Author name
+- Author profile link
+- Post content
+- Post URL
+- Post date
+- Number of reactions
+- Number of comments
+- Hashtags used
+- Mention type (Founder / Adya AI / Both)
+
+Example JSON format:
+
+{
+  "author_name": "",
+  "author_profile": "",
+  "post_content": "",
+  "post_url": "",
+  "post_date": "",
+  "reactions": "",
+  "comments": "",
+  "hashtags": [],
+  "mention_type": ""
+}
+
+4. Storage Layer
+
+Store the extracted data in a structured format such as:
+
+- MongoDB
+- PostgreSQL
+- CSV
+- JSON
+
+Example structure:
+
+posts_collection
+ ├── author
+ ├── post_text
+ ├── post_url
+ ├── date
+ ├── reactions
+ ├── comments
+ └── tags
+
+5. Reporting Layer
+
+Generate a report containing all extracted posts.
+
+Possible outputs:
+
+CSV file:
+author | post_date | post_text | link | reactions | comments
+
+JSON file:
+Structured dataset containing all posts.
+
+Optional Dashboard:
+A simple dashboard can be built using:
+- Streamlit
+- Flask
+- React
+
+The dashboard may show:
+- list of posts
+- filters
+- analytics
+
+6. Automation
+
+The system should support automation such as:
+- scheduled runs
+- periodic updates
+- duplicate prevention
+
+This can be implemented using cron jobs or scheduled scripts.
+
+7. Suggested Tech Stack
+
+Backend:
+Python
+
+Scraping:
+Playwright / Selenium / BeautifulSoup
+
+Database:
+MongoDB / PostgreSQL
+
+Output:
+CSV / JSON
+
+Optional UI:
+Streamlit / Flask / React
+
+8. Deliverables
+
+The final project should include:
+
+- Source code repository
+- Working extraction script
+- Output dataset (CSV or JSON)
+- Documentation explaining how to run the project
